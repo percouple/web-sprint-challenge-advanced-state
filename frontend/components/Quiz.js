@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { setQuiz, selectAnswer, fetchQuiz, postAnswer } from '../state/action-creators'
 
@@ -12,16 +12,21 @@ const mapStateToProps = (state) => {
 export function Quiz(props) {
 
   const dispatch = useDispatch();
+  const [quizFetched, setQuizFetched] = useState(false);
+
+  useEffect(() => {
+    if (!props.quiz && !quizFetched) {
+      dispatch(fetchQuiz());
+      setQuizFetched(true);
+    }
+  }, [dispatch, props.quiz, quizFetched]);
 
   const onSubmit = () => {
     console.log("Boop! Submit pressed.")
-    dispatch(postAnswer({ quiz_id: props.quiz.quiz_id, answer_id: props.selectedAnswer.answer_id}))
+    dispatch(postAnswer({ quiz_id: props.quiz.quiz_id, answer_id: props.selectedAnswer.answer_id }))
   }
 
-  if (!props.quiz) {
-    dispatch(fetchQuiz())
-  }
-  
+
   return (
     <div id="wrapper">
       {
@@ -30,7 +35,7 @@ export function Quiz(props) {
           <>
             <h2>{props.quiz.question}</h2>
             <div id="quizAnswers">
-            <div className={`answer ${props.quiz.answers[0].text === props.selectedAnswer.text ? 'selected' : ''}`}>
+              <div className={`answer ${props.quiz.answers[0].text === props.selectedAnswer.text ? 'selected' : ''}`}>
                 {props.quiz.answers[0].text}
                 <button onClick={() => dispatch(selectAnswer(props.quiz.answers[0]))}>
                   {props.quiz.answers[0].text === props.selectedAnswer.text ? 'SELECTED' : 'Select'}
@@ -38,9 +43,9 @@ export function Quiz(props) {
               </div>
 
               <div className={`answer ${props.quiz.answers[1].text === props.selectedAnswer.text ? 'selected' : ''}`}>
-              {props.quiz.answers[1].text}
+                {props.quiz.answers[1].text}
                 <button onClick={() => dispatch(selectAnswer(props.quiz.answers[1]))}>
-                {props.quiz.answers[1].text === props.selectedAnswer.text ? 'SELECTED' : 'Select'}
+                  {props.quiz.answers[1].text === props.selectedAnswer.text ? 'SELECTED' : 'Select'}
                 </button>
               </div>
             </div>
@@ -53,4 +58,4 @@ export function Quiz(props) {
   )
 }
 
-export default connect (mapStateToProps) (Quiz);
+export default connect(mapStateToProps)(Quiz);
